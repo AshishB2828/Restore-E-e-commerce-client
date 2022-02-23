@@ -2,39 +2,33 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Divider, Grid, Typography } from '@mui/material';
+import agent from '../api/agent';
+import Loading from '../components/Loading';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProductAsync, productSelectors } from '../store/slices/catalogSlice';
 
 const ProductDetails = () => {
 
-  const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(false);
   const {id} = useParams();
-
-  const fetchProduct = async()=>{
-      setLoading(true);
-      try {
-        const {data} = await axios.get(`https://localhost:44321/api/Product/${id}`);
-        setProduct(data);
-        setLoading(false);
-
-      } catch (error) {
-        setLoading(false);
-        console.log(error)
-      }
-  }
+  const dispatch  = useDispatch();
+  const product  = useSelector(state => productSelectors.selectById(state, id));
+  const { status } = useSelector(state => state.catalog)
 
   useEffect(()=>{
-    if(id)
-    fetchProduct();
+    if(!product) dispatch(fetchProductAsync(parseInt(id)))
   },[id])
 
-  if(!product) return <h1>No product..</h1>
+  
 
-  if(loading)
+  if(status.includes('pending'))
   {
     return(
-      <h1>Loading....</h1>
+      <Loading />
     )
   }
+  if(!product) return <h1>No product..</h1>
+  else
   return (
       <Grid container spacing={6}>
         <Grid item xs={6}>

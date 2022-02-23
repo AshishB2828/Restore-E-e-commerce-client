@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProductsAsync, productSelectors } from '../store/slices/catalogSlice';
 import ProductList from './ProductList';
 
 const Catalog = ({  }) => {
 
 
-    const [products, setProducts] = useState([]);
-    async function fetchData(){
-        await fetch('https://localhost:44321/api/Product')
-            .then(res=>res.json()).then(data => setProducts(data))
-            .catch(err=>console.log(err))
-    }
+    const products = useSelector(productSelectors.selectAll);
+    const { productLoaded } = useSelector(state => state.catalog)
+    const dispatch = useDispatch();
+    
+
 
     useEffect(()=>{
-        fetchData()
-    }, [])
+        if(!productLoaded) dispatch(fetchProductsAsync());
+    }, [productLoaded, dispatch])
 
     return(
         <>

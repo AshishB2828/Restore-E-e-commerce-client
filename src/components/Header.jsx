@@ -1,7 +1,8 @@
 import { AppBar, List, Toolbar, Typography, ListItem, IconButton, Badge } from '@mui/material';
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { ShoppingBag } from '@mui/icons-material'
+import { useSelector } from 'react-redux';
 
 const middleLinks = [
     {title: 'catalog', path :'/catalog'},
@@ -17,6 +18,9 @@ const rightLinks = [
 
 
 const Header = () => {
+    const {basket} = useSelector(state => state.basket);
+    const itemCount = basket?.items.reduce((sum , item) => sum + item.quantity, 0)
+
     return(
         <AppBar position='static' sx={{mb:4}}>
             <Toolbar>
@@ -39,8 +43,8 @@ const Header = () => {
                     }
                 </List>
 
-                    <IconButton>
-                        <Badge badgeContent={4} color='secondary'>
+                    <IconButton component={Link} to='/basket'>
+                        <Badge badgeContent={itemCount} color='secondary'>
                             <ShoppingBag />
                         </Badge>
                     </IconButton>

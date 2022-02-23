@@ -1,8 +1,16 @@
 import React from 'react';
 import { Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import agent from '../api/agent';
+import { useDispatch } from 'react-redux';
+import { addBasketItemAsync, setBasket } from '../store/slices/basketSlice';
 
 const ProductCard = ({ product }) => {
+
+    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
+
     return (
 
     <Card sx={{ maxWidth: 345 }}>
@@ -29,7 +37,10 @@ const ProductCard = ({ product }) => {
         </Typography>
         </CardContent>
         <CardActions>
-            <Button size="small">Add To Cart</Button>
+            <Button 
+                size="small"
+                onClick={()=> dispatch(addBasketItemAsync({productId: product.id}))}
+                >Add To Cart</Button>
             <Button component={Link} to={`/catalog/${product.id}`} size="small">View</Button>
         </CardActions>
     </Card>
