@@ -8,7 +8,7 @@ const ProductList = ({products}) => {
                 {
                     products?.map((product)=>{
                         return (
-                            <Grid key={product.id}  item >
+                            <Grid key={product.id} xs={3}  item >
                                 <ProductCard product={product} />
                             </Grid>
                         )

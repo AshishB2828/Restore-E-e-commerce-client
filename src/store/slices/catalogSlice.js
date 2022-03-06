@@ -2,12 +2,31 @@ import { createAsyncThunk, createEntityAdapter, createSlice } from "@reduxjs/too
 import agent from "../../api/agent";
 
 const productAdapter = createEntityAdapter();
+
+
+const getAxiosParams = (productParams) =>{
+    const params = new URLSearchParams();
+    params.append("PageNumber", productParams.pageNumber.toString());
+    params.append("PageSize", productParams.pageSize.toString());
+    params.append("OrderBy", productParams.orderBy);
+    if(productParams.brands?.length)
+    params.append("Brands", productParams.brands.toString());
+    if(productParams.types?.length)
+    params.append("Types", productParams.types.toString());
+    if(productParams.searchTerm)
+    params.append("SearchTerm", productParams.searchTerm);
+    return params;
+}
+
 //Actions
 export const fetchProductsAsync = createAsyncThunk(
     'catalog/fetchProductsAsync',
     async(_,thunkAPI)=>{
+        const params = getAxiosParams(thunkAPI.getState().catalog.productParams);
         try {
-            return await agent.Catalog.list();
+            const response = await agent.Catalog.list(params);
+            thunkAPI.dispatch(setMetaData(response.metaData));
+            return response.items;
         } catch (error) {
             return thunkAPI.rejectWithValue({error: error.data})
         }
@@ -27,27 +46,74 @@ export const fetchProductAsync = createAsyncThunk(
     }
 )
 
+export const fetchFiltersAsync = createAsyncThunk(
+    'catalog/fecthFilters',
+    async(_, thunkAPI)=>{
+        try {
+            return await agent.Catalog.fetchFilters();
+        } catch (error) {
+            return thunkAPI.rejectWithValue({error: error.data});
+        }
+    }
+)
+
 //
+
+function initParams(){
+    return{
+        pageNumber: 1,
+        pageSize: 6,
+        orderBy: 'name',
+        brands:[],
+        types:[]
+    }
+    
+}
 
 export const catalogSlice = createSlice(
     {
         name:'catalog',
         initialState: productAdapter.getInitialState({
             productLoaded: false,
-            status:'idle'
+            filtersLoaded: false,
+            status:'idle',
+            brands:[],
+            types:[],
+            productParams: initParams(),
+            metaData: {}
         }),
-        reducers:{},
+        reducers:{
+            setProductParams: (state, action) => {
+                state.productLoaded = false;
+                // console.log(action.payload)
+                state.productParams ={...state.productParams, ...action.payload, pageNumber: 1};
+                // console.log(state.productParams)
+            },
+            setPageNumber: (state, action) => {
+                state.productLoaded = false;
+                state.productParams ={...state.productParams, ...action.payload};
+            },
+            resetProductParams: (state) =>{
+                state.productParams = initParams();
+            },
+            setMetaData: (state, action) =>{
+                state.metaData = action.payload
+            }
+        },
         extraReducers:(builder => {
             builder.addCase(fetchProductsAsync.pending, state =>{
                 state.status = "pendingFetchProducts";
             });
             builder.addCase(fetchProductsAsync.fulfilled, (state, action) =>{
+                // console.log("fetchProductsAsync.Full => ",action)
+
                 productAdapter.setAll(state, action.payload);
                 state.status ="idle";
                 state.productLoaded=true;
             });
-            builder.addCase(fetchProductsAsync.rejected, state=>{
+            builder.addCase(fetchProductsAsync.rejected, (state, action)=>{
                 state.status ="idle";
+                // console.log("fetchProductsAsync =>", action);
             });
             builder.addCase(fetchProductAsync.pending, state =>{
                 state.status = 'pendingFetchProduct';
@@ -58,10 +124,25 @@ export const catalogSlice = createSlice(
             });
             builder.addCase(fetchProductAsync.rejected, (state, action)=>{
                 state.status ="idle";
-                console.log(action);
+                // console.log(action);
+            });
+            builder.addCase(fetchFiltersAsync.pending, state =>{
+                state.status = 'pendingFetchFilters';
+            });
+            builder.addCase(fetchFiltersAsync.fulfilled, (state, action) =>{
+                state.brands = action.payload.brands;
+                state.types = action.payload.types;
+                state.filtersLoaded = true;
+                state.status ="idle";
+
+            });
+            builder.addCase(fetchFiltersAsync.rejected, (state, action)=>{
+                state.status ="idle";
+                // console.log(action);
             });
         })
     }
 );
 
-export const productSelectors = productAdapter.getSelectors(state => state.catalog)
+export const productSelectors = productAdapter.getSelectors(state => state.catalog);
+export const { resetProductParams, setProductParams, setMetaData, setPageNumber } = catalogSlice.actions;
