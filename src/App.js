@@ -1,5 +1,5 @@
 import { Container, createTheme, CssBaseline, ThemeProvider } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Route } from 'react-router-dom';
 import {ToastContainer} from 'react-toastify';
 
@@ -15,28 +15,32 @@ import { getCookie } from './utils/utils';
 import agent from './api/agent';
 import CheckOutPage from './Pages/CheckOutPage';
 import { useDispatch } from 'react-redux';
-import { setBasket } from './store/slices/basketSlice';
+import { fecthBasketAsync, setBasket } from './store/slices/basketSlice';
+import Login from './Pages/Login';
+import Register from './Pages/Register';
+import { fetchCurrentUser } from './store/slices/accountSlice';
 
 const App = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true)
 
+  const initApp = useCallback(async()=>{
+    try {
+      await dispatch(fetchCurrentUser());
+      await dispatch(fecthBasketAsync());
+
+    } catch (error) {
+      console.log(error)
+    }
+  }, [dispatch])
 
   useEffect(()=>{
-    const buyerId = getCookie('buyerId');
-    if(buyerId){
-      agent.Basket.get()
-      .then(basket => dispatch(setBasket(basket)))
-      .catch(err => console.log(err))
-      .finally(()=>setLoading(false))
-    }else{
-      setLoading(false)
-    }
-  },[dispatch])
+    initApp().then(()=> setLoading(false))
+  },[initApp])
 
   const theme = createTheme({
     palette:{
-      mode: 'dark'
+      mode: 'light'
     }
   })
   if(loading) return "Initializing App...."
@@ -53,6 +57,9 @@ const App = () => {
         <Route path='/contact' component={ContactPage} />
         <Route path='/basket' component={BasketPage}/>
         <Route path='/checkout' component={CheckOutPage}/>
+        <Route path='/login' component={Login}/>
+        <Route path='/register' component={Register}/>
+
       </Container>
     </ThemeProvider>
   );

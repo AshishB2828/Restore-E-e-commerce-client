@@ -6,6 +6,15 @@ axios.defaults.withCredentials = true;
 
 const responseBody = (response) => response.data;
 
+axios.interceptors.request.use(config =>{
+
+    const token = JSON.parse(localStorage.getItem('user'))?.token;
+    
+    config.headers.Authorization = `Bearer ${token}`;
+
+    return config;
+})
+
 axios.interceptors.response.use(res=>{
 
     const pagination = res.headers['pagination'];
@@ -54,8 +63,15 @@ const Catalog = {
 
 }
 
+
+const Account = {
+    login: (values) => requests.post('account/login', values),
+    register: (values) => requests.post('account/register', values),
+    currentUser: () => requests.get('account/currentUser')
+}
+
 const agent ={
-    Catalog,Basket
+    Catalog,Basket, Account
 }
 
 export default agent ;

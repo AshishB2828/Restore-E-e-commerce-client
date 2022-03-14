@@ -3,6 +3,7 @@ import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { ShoppingBag } from '@mui/icons-material'
 import { useSelector } from 'react-redux';
+import SignedInMenu from './SignedInMenu';
 
 const middleLinks = [
     {title: 'catalog', path :'/catalog'},
@@ -19,6 +20,7 @@ const rightLinks = [
 
 const Header = () => {
     const {basket} = useSelector(state => state.basket);
+    const { user } = useSelector(s => s.account);
     const itemCount = basket?.items.reduce((sum , item) => sum + item.quantity, 0)
 
     return(
@@ -48,21 +50,27 @@ const Header = () => {
                             <ShoppingBag />
                         </Badge>
                     </IconButton>
+                {
+                    user ? <SignedInMenu />:(
 
-                <List sx={{display: 'flex'}}>
-                    {
-                        rightLinks.map(i=>(
-                            <ListItem 
-                                component={NavLink}
-                                to={i.path}
-                                key={i.path}
+                        <List sx={{display: 'flex'}}>
+                        {
+                            rightLinks.map(i=>(
+                                <ListItem 
+                                    component={NavLink}
+                                    to={i.path}
+                                    key={i.path}
+    
+                                >
+                                    {i.title.toUpperCase()}
+                                </ListItem>
+                            ))
+                        }
+                    </List>
 
-                            >
-                                {i.title.toUpperCase()}
-                            </ListItem>
-                        ))
-                    }
-                </List>
+                    )
+
+                }
 
             </Toolbar>
         </AppBar>

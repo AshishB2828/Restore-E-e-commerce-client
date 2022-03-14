@@ -1,5 +1,6 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, isAnyOf } from "@reduxjs/toolkit";
 import agent from "../../api/agent";
+import { getCookie } from "../../utils/utils";
 
 const initialState ={
     basket: null,
@@ -29,6 +30,22 @@ export const removeBasketItemAsync = createAsyncThunk(
     }
 )
 
+export const fecthBasketAsync = createAsyncThunk(
+    'basket/fetchBasketAsync',
+    async (_,thunkAPI)=>{
+
+        try {
+            return await agent.Basket.get();
+        } catch (error) {
+            return thunkAPI.rejectWithValue({error: error.data});
+        }
+    },{
+        condition: ()=>{
+            if(!getCookie('buyerId')) return false;
+        }
+    }
+)
+
 
 // 
 export const basketSlice = createSlice({
@@ -46,13 +63,6 @@ export const basketSlice = createSlice({
                 console.log(action);
                 state.status = "pendingAddItem";
             });
-            builder.addCase(addBasketItemAsync.fulfilled, (state, action)=>{
-                state.basket = action.payload;
-                state.status = "idle"
-            });
-            builder.addCase(addBasketItemAsync.rejected, (state)=>{
-                state.status = "idle"
-            });
             builder.addCase(removeBasketItemAsync.pending, (state, action)=>{
                 state.status = "pendingRemoveItem"
             });
@@ -65,6 +75,14 @@ export const basketSlice = createSlice({
             state.basket.items[itemIndex].quantity -= quantity;
             if(state.basket?.items[itemIndex].quantity === 0)
                 state.basket.items.splice(itemIndex, 1);
+            });
+
+            builder.addMatcher(isAnyOf(addBasketItemAsync.fulfilled, fecthBasketAsync.fulfilled), (state, action)=>{
+                state.basket = action.payload;
+                state.status = "idle"
+            });
+            builder.addMatcher(isAnyOf(addBasketItemAsync.rejected, fecthBasketAsync.rejected), (state)=>{
+                state.status = "idle"
             });
 
         }
