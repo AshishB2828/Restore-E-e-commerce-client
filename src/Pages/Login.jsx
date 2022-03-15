@@ -29,8 +29,12 @@ export default function Login() {
 
 async function submitForm(data){
 
-    await dispatch(signInUser(data));
-    history.push('/catalog')
+    try {
+        await dispatch(signInUser(data));
+        history.push('/catalog')
+    } catch (error) {
+        console.log(error)
+    }
 
 }
 

@@ -16,6 +16,7 @@ import agent from '../api/agent';
 import { useDispatch } from 'react-redux';
 import { signInUser } from '../store/slices/accountSlice';
 import { Alert, AlertTitle, List, ListItem, ListItemText } from '@mui/material';
+import { toast } from 'react-toastify';
 
 const theme = createTheme();
 
@@ -43,7 +44,11 @@ return (
             onSubmit={
                 handleSubmit(data => 
                     agent.Account.register(data)
-                    .catch(error => {setValidationError(error); console.log(error)})
+                    .then(()=>{
+                        toast.success('Registration Success');
+                        history.push('/login')
+                    })
+                    .catch(error => {setValidationError(error?.response?.data); console.log(error?.response?.data?.errors)})
                     )
             
             } 
@@ -89,7 +94,7 @@ return (
                             validationError.map(
                                 error=>(
                                     <ListItem key={error}>
-                                        <ListItemText>{error}</ListItemText>
+                                        <ListItemText>{error[0]}</ListItemText>
                                     </ListItem>
                                 )
                             )
