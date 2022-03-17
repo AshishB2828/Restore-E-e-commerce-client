@@ -19,6 +19,7 @@ import { fecthBasketAsync, setBasket } from './store/slices/basketSlice';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
 import { fetchCurrentUser } from './store/slices/accountSlice';
+import PrivateRoute from './private-routes/PrivateRoutes';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -56,7 +57,7 @@ const App = () => {
         <Route path='/about' component={AboutPage} />
         <Route path='/contact' component={ContactPage} />
         <Route path='/basket' component={BasketPage}/>
-        <Route path='/checkout' component={CheckOutPage}/>
+        <PrivateRoute path='/checkout' Component={CheckOutPage}/>
         <Route path='/login' component={Login}/>
         <Route path='/register' component={Register}/>
 

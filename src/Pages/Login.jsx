@@ -10,7 +10,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import agent from '../api/agent';
 import { useDispatch } from 'react-redux';
@@ -23,6 +23,7 @@ export default function Login() {
 
     const history = useHistory();
     const dispatch = useDispatch();
+    const location = useLocation();
     const { register, handleSubmit, formState:{isSubmitting, errors, isValid} }  = useForm({
     mode:'all'
     });
@@ -31,7 +32,7 @@ async function submitForm(data){
 
     try {
         await dispatch(signInUser(data));
-        history.push('/catalog')
+        history.push( location.state?.from.pathname || '/catalog')
     } catch (error) {
         console.log(error)
     }

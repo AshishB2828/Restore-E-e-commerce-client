@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Route, Redirect } from 'react-router-dom';
 
-export default function PrivateRoute({ component, ...rest }){
+export default function PrivateRoute({ Component, ...rest }){
 
     const {user} = useSelector(s => s.account)
     
@@ -11,7 +11,7 @@ export default function PrivateRoute({ component, ...rest }){
             {...rest}
             render={(props)=>
             user ? (
-                <component {...props}/>
+                <Component {...props}/>
             ) :(
                 <Redirect
                     to={{
