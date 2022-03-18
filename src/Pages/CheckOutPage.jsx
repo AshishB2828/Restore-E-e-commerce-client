@@ -5,6 +5,8 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Toolbar from '@mui/material/Toolbar';
 import Paper from '@mui/material/Paper';
+import { useDispatch } from 'react-redux';
+
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
@@ -18,6 +20,8 @@ import Review from '../components/Review';
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { validationSchema } from '../utils/checkOutValidation';
+import agent from '../api/agent';
+import {  clearBasket } from '../store/slices/basketSlice'
 
 
 
@@ -53,8 +57,12 @@ const theme = createTheme();
 
 export default function CheckOutPage() {
 
+
+  const [orderNumber, setOrderNumber] = React.useState();
+  const [loading, setLoading] = React.useState(false);
   const [activeStep, setActiveStep] = React.useState(0);
   const currentValidationSchema = validationSchema[activeStep];
+  const dispatch = useDispatch();
 
   const methods = useForm({
     mode: 'all',
@@ -62,8 +70,25 @@ export default function CheckOutPage() {
   });
 
 
-  const handleNext = (data) => {
-    if(activeStep === 0) console.log(data)
+  const handleNext = async(data) => {
+
+    const { nameOnCard, saveAddress, ...shippingAddress } = data;
+    
+    if(activeStep === steps.length-1) {
+      setLoading(true);
+      try {
+
+        const orderNumber = await agent.Order.create({saveAddress, shippingAddress});
+        setOrderNumber(orderNumber);
+        setActiveStep(activeStep + 1);
+        dispatch(clearBasket());
+        setLoading(false);
+      } catch (error) {
+          console.log(error);
+          setLoading(false);
+      }
+    }
+    else
     setActiveStep(activeStep + 1);
   };
 
@@ -91,9 +116,7 @@ export default function CheckOutPage() {
                   Thank you for your order.
                 </Typography>
                 <Typography variant="subtitle1">
-                  Your order number is #2001539. We have emailed your order
-                  confirmation, and will send you an update when your order has
-                  shipped.
+                  Your order number is #{orderNumber}.
                 </Typography>
               </React.Fragment>
             ) : (
