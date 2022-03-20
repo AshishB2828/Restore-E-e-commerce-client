@@ -13,6 +13,7 @@ export default function AppCheckBox(props){
                     {...field}
                     checked={field.value}
                     color ="secondary"
+                    disabled = {props.disable}
                 />
             }
             label ={props.label}

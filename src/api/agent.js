@@ -67,13 +67,14 @@ const Catalog = {
 const Account = {
     login: (values) => requests.post('account/login', values),
     register: (values) => requests.post('account/register', values),
-    currentUser: () => requests.get('account/currentUser')
+    currentUser: () => requests.get('account/currentUser'),
+    fetchAddress: () => requests.get('account/savedAddress')
 }
 
 const Order = {
-    list: () => requests.get('orders'),
-    fetch:(id) => requests.get(`orders/${id}`),
-    create:(values) => requests.post('orders', values),
+    list: () => requests.get('order'),
+    fetch:(id) => requests.get(`order/${id}`),
+    create:(values) => requests.post('order', values),
 
 }
 

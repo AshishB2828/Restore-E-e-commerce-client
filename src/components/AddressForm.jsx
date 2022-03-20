@@ -12,7 +12,7 @@ import AppCheckBox from './AppCheckBox';
 export default function AddressForm() {
 
 
-  const {control} = useFormContext();
+  const { control, formState } = useFormContext();
 
   return (
     <React.Fragment>
@@ -75,6 +75,7 @@ export default function AddressForm() {
               name="saveAddress"
               label="default Address"
               control={control}
+              disabled ={!formState.isDirty}
             />
           </Grid>
         </Grid>

@@ -69,6 +69,16 @@ export default function CheckOutPage() {
     resolver: yupResolver(currentValidationSchema)
   });
 
+  React.useEffect(()=>{
+    agent.Account.fetchAddress()
+          .then(res => {
+            if(res){
+              methods.reset({...methods.getValues(), ...res, saveAddress: false});
+            }
+          })
+  }, [methods]);
+
+  
 
   const handleNext = async(data) => {
 

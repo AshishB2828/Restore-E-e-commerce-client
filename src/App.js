@@ -20,6 +20,7 @@ import Login from './Pages/Login';
 import Register from './Pages/Register';
 import { fetchCurrentUser } from './store/slices/accountSlice';
 import PrivateRoute from './private-routes/PrivateRoutes';
+import Order from './Pages/Order';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -57,6 +58,7 @@ const App = () => {
         <Route path='/about' component={AboutPage} />
         <Route path='/contact' component={ContactPage} />
         <Route path='/basket' component={BasketPage}/>
+        <Route path='/orders' component={Order}/>
         <PrivateRoute path='/checkout' Component={CheckOutPage}/>
         <Route path='/login' component={Login}/>
         <Route path='/register' component={Register}/>

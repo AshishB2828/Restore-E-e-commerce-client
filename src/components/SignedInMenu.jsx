@@ -5,6 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { useDispatch, useSelector } from 'react-redux';
 import { signOut } from '../store/slices/accountSlice';
 import { clearBasket } from '../store/slices/basketSlice';
+import { Link } from 'react-router-dom';
 
 export default function SignedInMenu() {
 
@@ -38,7 +39,7 @@ export default function SignedInMenu() {
         }}
       >
         <MenuItem onClick={handleClose}>Profile</MenuItem>
-        <MenuItem onClick={handleClose}>My Orders</MenuItem>
+        <MenuItem component={Link} to="/orders">My Orders</MenuItem>
         <MenuItem onClick={()=> {
           dispatch(clearBasket())
           dispatch(signOut())}}>Logout</MenuItem>
