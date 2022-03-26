@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Toolbar from '@mui/material/Toolbar';
 import Paper from '@mui/material/Paper';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -22,6 +22,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { validationSchema } from '../utils/checkOutValidation';
 import agent from '../api/agent';
 import {  clearBasket } from '../store/slices/basketSlice'
+import { CardNumberElement, useElements, useStripe } from '@stripe/react-stripe-js';
 
 
 
@@ -62,6 +63,15 @@ export default function CheckOutPage() {
   const [loading, setLoading] = React.useState(false);
   const [activeStep, setActiveStep] = React.useState(0);
   const currentValidationSchema = validationSchema[activeStep];
+  const [paymentMessage, setPaymentMessage] = React.useState("");
+  const [paymentSucceded, setPaymentSucceded] = React.useState(false);
+
+  const { basket } = useSelector(s => s.basket);
+
+  const stripe = useStripe();
+  const elements = useElements();
+
+
   const dispatch = useDispatch();
 
   const methods = useForm({
@@ -78,25 +88,50 @@ export default function CheckOutPage() {
           })
   }, [methods]);
 
-  
+  const submitOrder = async(data) =>{
 
-  const handleNext = async(data) => {
-
+    setLoading(true);
     const { nameOnCard, saveAddress, ...shippingAddress } = data;
-    
-    if(activeStep === steps.length-1) {
-      setLoading(true);
-      try {
-
+    if(!stripe || !elements) return;
+    try {
+      
+      const cardElement = elements.getElement(CardNumberElement);
+      const paymentResult = await stripe.confirmCardPayment(basket?.clientSecret,{
+        payment_method: {
+          card: cardElement,
+          billing_details:{
+            name: nameOnCard
+          }
+        }
+      });
+      console.log(paymentResult)
+      if(paymentResult.paymentIntent?.status === "succeeded"){
         const orderNumber = await agent.Order.create({saveAddress, shippingAddress});
         setOrderNumber(orderNumber);
+        setPaymentSucceded(true);
+        setOrderNumber(orderNumber);
+        setPaymentMessage("Thank you");
         setActiveStep(activeStep + 1);
         dispatch(clearBasket());
         setLoading(false);
-      } catch (error) {
-          console.log(error);
-          setLoading(false);
+      }else{
+        setPaymentMessage(paymentResult.error?.message);
+        setPaymentSucceded(false);
+        setLoading(false);
+        setActiveStep(activeStep + 1);
       }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+
+  }
+
+  const handleNext = async(data) => {
+
+
+    if(activeStep === steps.length-1) {
+    await submitOrder(data)
     }
     else
     setActiveStep(activeStep + 1);
@@ -123,11 +158,13 @@ export default function CheckOutPage() {
             {activeStep === steps.length ? (
               <React.Fragment>
                 <Typography variant="h5" gutterBottom>
-                  Thank you for your order.
+                  {paymentMessage}
                 </Typography>
-                <Typography variant="subtitle1">
+                {
+                  paymentSucceded && (<Typography variant="subtitle1">
                   Your order number is #{orderNumber}.
-                </Typography>
+                </Typography>)
+                }
               </React.Fragment>
             ) : (
               <>
