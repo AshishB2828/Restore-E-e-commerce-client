@@ -22,6 +22,7 @@ import { fetchCurrentUser } from './store/slices/accountSlice';
 import PrivateRoute from './private-routes/PrivateRoutes';
 import Order from './Pages/Order';
 import CheckoutWrapper from './components/CheckoutWrapper';
+import Inventory from './Pages/admin/Inventory';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -61,6 +62,7 @@ const App = () => {
         <Route path='/basket' component={BasketPage}/>
         <Route path='/orders' component={Order}/>
         <PrivateRoute path='/checkout' Component={CheckoutWrapper}/>
+        <PrivateRoute roles={["Admin"]} path='/inventory' Component={Inventory}/>
         <Route path='/login' component={Login}/>
         <Route path='/register' component={Register}/>
 

@@ -1,9 +1,17 @@
 import { Box, Pagination, Typography } from '@mui/material';
-import React from 'react'
+import React, { useState } from 'react'
 
 const AppPagination = ({ metaData, onPageChange }) => {
 
     const { currentPage, totalCount, totalPages, pageSize } = metaData;
+
+    const [pageNumber, setPageNumber] = useState(currentPage);
+
+    function handlePageChange(page){
+        setPageNumber(page);
+        onPageChange(page)
+    }
+
     if(!metaData.currentPage) return <h1>Loading..</h1>
         return (
                 <Box display='flex' justifyContent='space-between' alignItems='center'>
@@ -14,8 +22,8 @@ const AppPagination = ({ metaData, onPageChange }) => {
                         color='secondary'
                         size='large'
                         count={totalPages}
-                        page={currentPage}
-                        onChange = {(e,page) =>onPageChange(page)}
+                        page={pageNumber}
+                        onChange = {(e,page) =>handlePageChange(page)}
                     />
                 </Box>
                 )

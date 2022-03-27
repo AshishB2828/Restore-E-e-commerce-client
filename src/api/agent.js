@@ -34,6 +34,9 @@ axios.interceptors.response.use(res=>{
         case 500:
                 toast.error(data.title);
             break;
+        case 403:
+            toast.error("Access Denied");
+        break;
     
         default:
             break;
@@ -46,6 +49,12 @@ const requests = {
     post: (url, body) => axios.post(url, body).then(responseBody),
     put: (url, body) => axios.put(url, body).then(responseBody),
     delete: (url) => axios.delete(url).then(responseBody),
+    postForm: (url, data) => axios.post(url, data, {
+        headers: {"Content-type": "multipart/form-data"}
+    }).then(responseBody),
+    putForm: (url, data) => axios.put(url, data, {
+        headers: {"Content-type": "multipart/form-data"}
+    }).then(responseBody),
 }
 
 const Basket ={
@@ -63,6 +72,19 @@ const Catalog = {
 
 }
 
+function createFormData(item) {
+    let formData = new FormData();
+    for (const key in item) {
+        formData.append(key, item[key])
+    }
+    return formData;
+}
+
+const Admin = {
+    createProduct: (product) => requests.postForm('product', createFormData(product)),
+    updateProduct: (product) => requests.putForm('product', createFormData(product)),
+    deleteProduct: (id) => requests.delete(`product/${id}`)
+}
 
 const Account = {
     login: (values) => requests.post('account/login', values),
@@ -84,7 +106,7 @@ const Payments = {
 }
 
 const agent ={
-    Catalog,Basket, Account, Order, Payments
+    Catalog,Basket, Account, Order, Payments, Admin
 }
 
 export default agent ;

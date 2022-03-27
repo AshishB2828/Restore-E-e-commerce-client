@@ -10,9 +10,12 @@ export default function AppTextInput(props){
             {...props}
             {...field}
             fullWidth
+            multiline={props.multiline}
+            rows={props.rows}
             variant="outlined"
             error={!!fieldState.error}
             helperText={fieldState.error?.message}
+            type={props.type}
         />
     )
 }

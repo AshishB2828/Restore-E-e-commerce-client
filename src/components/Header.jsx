@@ -43,6 +43,11 @@ const Header = () => {
                             </ListItem>
                         ))
                     }
+                { user && user.roles?.includes("Admin")  &&(<ListItem 
+                                component={NavLink}
+                                to={"/inventory"}
+                            > INVENTORY
+                    </ListItem>)}
                 </List>
 
                     <IconButton component={Link} to='/basket'>
